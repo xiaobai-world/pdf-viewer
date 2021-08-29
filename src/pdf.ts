@@ -49,7 +49,7 @@ export async function downloadPageByNumber(event: MouseEvent, index: number) {
  }
 
  const bolb = await renderPage(pdf, {
-  scale: 6,
+  scale: 4,
   pageNumber: index
  })
 
@@ -62,11 +62,9 @@ export async function downloadPageByNumber(event: MouseEvent, index: number) {
 
 export async function downloadWithZip(event: MouseEvent) {
  let node = event.currentTarget as HTMLAnchorElement
- console.log('node', node)
  if (node.getAttribute('href')) {
   return
  }
- alert(node)
 
  if (!pdf) {
   return
@@ -75,7 +73,7 @@ export async function downloadWithZip(event: MouseEvent) {
 
  for (let i = 0; i < pageCount.value; i++) {
   const bolb = await renderPage(pdf, {
-   scale: 6,
+   scale: 4,
    pageNumber: i + 1
   })
   zip.file(`${i + 1}.png`, bolb);
