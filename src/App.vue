@@ -1,13 +1,19 @@
 <template>
- <div>
-  <label>
-   <input type="file" ref="download" />
-   Select PDF
-  </label>
+ <div class="pdf-viewer">
+  <div class="control">
+   <label>
+    <input type="file" @change="selectPdfFile" :id="domId" />
+    Select PDF
+   </label>
+   <a @click="downloadWithZip" v-if="thumbnail.length > 0">Download with Zip</a>
+  </div>
 
   <div class="img-wrapper">
    <div v-for="(item, idx) in thumbnail" :key="idx">
-    <img :src="item" />
+    <img :src="item.url" />
+    <a @click="downloadPageByNumber($event, idx + 1)" :download="`${idx}.png`"
+     >Download</a
+    >
    </div>
   </div>
   <canvas id="the-canvas"></canvas>
@@ -15,126 +21,95 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "vue";
-import * as pdfjs from "pdfjs-dist";
-import { PDFDocumentProxy } from "pdfjs-dist/types/display/api";
-pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.js";
+import { defineComponent } from "vue";
+import {
+ thumbnail,
+ loaded,
+ pageCount,
+ selectPdfFile,
+ downloadPageByNumber,
+ downloadWithZip,
+} from "./pdf";
 
 export default defineComponent({
  setup() {
-  const download = ref(null);
-  const thumbnail: Ref<string[]> = ref([]);
+  const domId = `file_${Math.random().toString(36)}`;
   return {
-   download,
+   domId,
    thumbnail,
+   loaded,
+   pageCount,
+   selectPdfFile,
+   downloadPageByNumber,
+   downloadWithZip,
   };
  },
  name: "App",
- mounted() {
-  // Asynchronous download of PDF
-  var loadingTask = pdfjs.getDocument("/demo.pdf");
-
-  /** */
-  const renderPage = (
-   pdf: PDFDocumentProxy,
-   param: {
-    scale: number;
-    pageNumber: number;
-   }
-  ) => {
-   return new Promise((resolve) => {
-    pdf.getPage(param.pageNumber).then((page) => {
-     console.log("Page loaded");
-
-     var viewport = page.getViewport({ scale: param.scale });
-
-     // Prepare canvas using PDF page dimensions
-     const canvas: HTMLCanvasElement = document.getElementById(
-      "the-canvas"
-     ) as HTMLCanvasElement;
-     var context = canvas.getContext("2d");
-     canvas.height = viewport.height;
-     canvas.width = viewport.width;
-
-     // Render PDF page into canvas context
-     if (!context) {
-      return;
-     }
-     var renderTask = page.render({
-      canvasContext: context,
-      viewport: viewport,
-     });
-     renderTask.promise.then(() => {
-      canvas.toBlob((bolb) => {
-       resolve(bolb);
-      });
-     });
-    });
-   });
-  };
-
-  loadingTask.promise.then(
-   async (pdf) => {
-    console.log("PDF loaded", this);
-
-    console.log(await pdf.numPages);
-
-    for (let i = 0; i < pdf.numPages; i++) {
-     const bolb = await renderPage(pdf, {
-      scale: 0.5,
-      pageNumber: i + 1,
-     });
-     let url = URL.createObjectURL(bolb);
-     this.thumbnail.push(url);
-    }
-   },
-   function (reason) {
-    // PDF loading error
-    console.error(reason);
-   }
-  );
- },
 });
 </script>
 
 <style scoped lang="less">
-div {
+.pdf-viewer {
  margin: 0 auto;
  display: block;
- > label {
-  display: block;
-  margin: 0 1em 2em auto;
-  border: solid 5px rgb(10, 182, 145);
-  color: rgb(10, 182, 145);
-  padding: 1em;
-  overflow: hidden;
-  position: relative;
-  text-align: center;
-  border-radius: 5px;
-  font-size: 23px;
-  word-spacing: 0.5em;
-  input {
-   position: absolute;
-   opacity: 0;
+ > .control {
+  display: flex;
+  margin: 2em auto 2em auto;
+  align-items: center;
+  justify-content: center;
+  > label,
+  > a {
+   border: solid 5px currentColor;
+   color: rgb(10, 182, 145);
+   padding: 1em;
+   font-size: 16px;
+   margin: 0 1em;
+   border-radius: 5px;
+   white-space: nowrap;
+   text-decoration: none;
+  }
+  > label {
+   overflow: hidden;
+   position: relative;
+   text-align: center;
+   word-spacing: 0.5em;
+   input {
+    position: absolute;
+    opacity: 0;
+   }
+  }
+  > a {
+   color: rgb(18, 63, 160);
   }
  }
  .img-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  flex-flow: wrap;
+  align-content: flex-start;
   margin: 0 1em;
   > div {
-   border: solid 1px rgb(10, 182, 145);
-   width: 119px;
-   height: 168px;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   margin: 0.5em;
-   border-radius: 0.5em;
+   flex: 0 0 20%;
+   padding: 0.5em;
+   box-sizing: border-box;
    overflow: hidden;
+   position: relative;
+   > a {
+    position: absolute;
+    right: 1em;
+    bottom: 1em;
+    color: #fff;
+    text-decoration: none;
+    background: cadetblue;
+    padding: 0.2em 0.3em;
+    border-radius: 0.2em;
+    font-size: 12px;
+   }
    > img {
+    border: solid 1px rgb(10, 182, 145);
+    border-radius: 0.5em;
     max-width: 100%;
     max-height: 100%;
+    display: block;
    }
   }
  }
