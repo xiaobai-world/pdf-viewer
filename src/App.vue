@@ -1,5 +1,5 @@
 <template>
- <div class="pdf-viewer">
+ <div class="pdf-viewer" :class="{ loading }">
   <div class="control">
    <label>
     <input type="file" @change="selectPdfFile" :id="domId" />
@@ -24,7 +24,7 @@
 import { defineComponent } from "vue";
 import {
  thumbnail,
- loaded,
+ loading,
  pageCount,
  selectPdfFile,
  downloadPageByNumber,
@@ -37,7 +37,7 @@ export default defineComponent({
   return {
    domId,
    thumbnail,
-   loaded,
+   loading,
    pageCount,
    selectPdfFile,
    downloadPageByNumber,
@@ -52,9 +52,28 @@ export default defineComponent({
 .pdf-viewer {
  margin: 0 auto;
  display: block;
+ position: relative;
+ user-select: none;
+ &.loading {
+  &::after {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   content: "please wait ....";
+   position: absolute;
+   left: 0;
+   right: 0;
+   top: 0;
+   bottom: 0;
+   z-index: 2;
+   background: rgba(0, 0, 0, 0.5);
+   font-size: 120%;
+   color: #fff;
+  }
+ }
  > .control {
   display: flex;
-  margin: 2em auto 2em auto;
+  padding: 2em 0 2em 0;
   align-items: center;
   justify-content: center;
   > label,
@@ -88,7 +107,7 @@ export default defineComponent({
   align-content: flex-start;
   margin: 0 1em;
   > div {
-   flex: 0 0 20%;
+   flex: 0 0 100px;
    padding: 0.5em;
    box-sizing: border-box;
    overflow: hidden;
