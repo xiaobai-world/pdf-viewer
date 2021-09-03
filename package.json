@@ -1,12 +1,13 @@
 {
-  "name": "pdf-viewer",
-  "version": "0.0.0",
+  "name": "pdf-2-image",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
+    "build": "vite build",
     "serve": "vite preview"
   },
   "dependencies": {
+    "@xiaobai-world/api": "0.0.26",
     "jszip": "^3.7.1",
     "pdfjs-dist": "^2.9.359",
     "vue": "^3.0.5"

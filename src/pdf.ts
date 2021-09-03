@@ -1,7 +1,7 @@
-import { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist/types/display/api";
+import { appRootPath } from "./app-info";
+import { PDFDocumentLoadingTask, PDFDocumentProxy } from "pdfjs-dist/types/display/api";
 import { Ref, ref } from "vue";
 import * as pdfjs from "pdfjs-dist";
-pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.js";
 import JSZip from 'jszip'
 
 
